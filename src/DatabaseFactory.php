@@ -66,7 +66,7 @@ class DatabaseFactory
 
         //Assegno ad una variabile la creazione di una dotenv immutabile
         //Questo metodo chiama una factory
-        $dotenv = Dotenv::createImmutable(__DIR__ . "/../../"); // Devo passare la variabile DIR che mappa la directory del progetto
+        $dotenv = Dotenv::createImmutable(__DIR__ . "/../"); // Devo passare la variabile DIR che mappa la directory del progetto
         $dotenv->load(); //carico le variabili di ambiente.
         //Con questa riga di codice : attribusico il required a i parametri di configurazione
         //In questo modo rimane più facile isolare un ipotetico problema relativo alle credenziali

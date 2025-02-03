@@ -1,166 +1,152 @@
 <?php
 
+require_once __DIR__ . '/common.php'; // per utilizzare le create dentro common.php
+//Se voglio modificare il composer.json devo fare il comando composer update
+//Come aggiunta di dipendenze o cambio autoload
+
+
+//Questa era la precente creazione della connessione a  db che è stata spostata su common.php
+// $db = DatabaseFactory::Create( DatabaseContract::TYPE_MySQLi);
+// $db2 = DatabaseFactory::Create( DatabaseContract::TYPE_PDO);
+
+
+
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
+    $firstName = $_POST['first_name'];
+    $lastName = $_POST['last_name'];
+
+    //Inserimento a DB senza transazione : togliere commento se si vuole testare.
+    //Passo la query e un array di array cosi come richiesto dall'execute di PDO per l'insert.
+    $db->setData("INSERT INTO actor (first_name, last_name) VALUES (?,?)", [
+        [$firstName, $lastName]
+
+    ]);
+
+    //Inserimento di due elementi alla volta in transazione.
+    $db->doWithTransaction([
+        "INSERT INTO actor (first_name, last_name) VALUES('$firstName', '$lastName')",
+        "INSERT INTO actor (first_name, last_name) VALUES('$firstName', '$lastName')"
+    ]);
+
+    //Reload della pagina
+    header("Location : index.php"); //Reload della pagina
+
+}
 ?>
-<!DOCTYPE html>
-<html lang="it">
+
+
+<!doctype html>
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creazione Contatto</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/domManipolation.js"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container-custom {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 90%;
-            max-width: 600px;
-        }
-        .contacts-container, .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .contact-item {
-            border-bottom: 1px solid #ddd;
-            padding: 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .contact-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .contact-buttons button {
-            margin-left: 5px;
-        }
-        .image-upload {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            cursor: pointer;
-            display: inline-block;
-        }
-        .image-upload img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-           
-        }
-        .image-upload::before {
-            content: "Aggiungi Foto";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-size: 16px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            opacity: 0.7;
-        }
-        .image-upload input {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        
-        }
-        @media (min-width: 768px) {
-            .container-custom {
-                flex-direction: row;
-                max-width: 1000px;
-            }
-            .contacts-container {
-                width: 50%;
-                max-height: 500px;
-                overflow-y: auto;
-            }
-            .form-container {
-                width: 50%;
-            }
-        }
-    </style>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sakila test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
-
+<!-- Restituzione da db con ciclo foreach -->
 
 <body>
-    <div class="container-custom">
-        <div class="form-container">
-            <h3 class="text-center text-primary">Nuovo Contatto</h3>
-            <form>
-                <div class="text-center">
-                    <label class="image-upload" id="upload-image">
-                        <img src="/mock/person-placeholder.jpg" id="previewImage" alt="Aggiungi Foto">
-                        <input type="file" id="photo" accept="image/*" onchange="changePlaceholder(event)">
-                    </label>
+    <div class="container w-50">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">
+                    Crea un nuovo attore nel db:
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Nome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il nome" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Cognome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" placeholder="Inserisci l'email" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Organizzazione</label>
-                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Ruolo</label>
-                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Numero di cellulare</label>
-                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Compleanno</label>
-                    <input type="date" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Salva Contatto</button>
-            </form>
-        </div>
-        <div class="contacts-container">
-            <h4 class="text-primary">Contatti Salvati</h4>
-            <div class="contact-item">
-                <img src="/mock/person-placeholder.jpg" class="contact-image" alt="Foto Contatto">
-                <div>
-                    <strong>Mario Rossi</strong><br>
-                    <small>+39 123 456 7890</small>
-                </div>
-                <div class="contact-buttons">
-                    <button class="btn btn-sm btn-warning">Modifica</button>
-                    <button class="btn btn-sm btn-danger">Elimina</button>
-                </div>
+                <form action="" method="POST">
+                    <input type="text" name="first_name" placeholder="nome">
+                    <input type="text" name="last_name" placeholder="cognome">
+                    <input type="submit" value="Invia">
+
+
+                </form>
             </div>
+
         </div>
     </div>
-    
-    
+
+    <hr>
+    <div class="container w-25">
+        <!-- Qui in questo codice sono implemenate il fetch e il fetchAll, ma il secondo svuota comunque l'array e non è compatibile con il fetch sulle stesse informazioni -->
+        <div class="card d-flex">
+            <div class="card-body">
+                <div class="card-title">
+                    Actors SQL query #1
+                </div>
+
+                <!-- query eseguita passando il parametro e specificando un array associativo ["param1" => "%pen%"]-->
+                <ul class="list-group">
+                    <?php $result =  $db2->getData("SELECT * FROM actor WHERE first_name LIKE :param1", ["param1" => "%pen%"]); ?>
+                    <?php while ($actor = $result->fetch()) : ?>
+                        <li class="list-group-item d-flex justify-content-between"><a class="link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="update.php?actor_id=<?= $actor['actor_id'] ?>"><?= $actor["first_name"] ?>, <?= $actor["last_name"] ?></a><a href="delete.php?actor_id=<?= $actor['actor_id'] ?>"><i class="fa-solid fa-trash-can"></i></a></li>
+                    <?php endwhile;  ?>
+
+                    <!-- FETCH ALL SENZA PARAM   -->
+                    <?php /* foreach ($result->fetchAll() as $actor) : ?>
+                        <li class="list-group-item"><?= $actor["first_name"] ?>, <?= $actor["last_name"] ?></li>
+                    <?php endforeach; */  ?>
+                </ul>
+            </div>
+
+        </div>
+        <hr>
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">
+                    Actors SQL query #2
+                </div>
+                <!--query eseguita in cui il parametro passato con il ? i parametri passati vengono specificati
+                    secondo l'ordine con cui vengono passati ogni ? corrisponde ad un argomento si possono
+                    inserire anche piu di uno  sempre insieme dentro le quadre -->
+
+                <ul class="list-group">
+                    <?php $result =  $db->getData("SELECT * FROM actor WHERE first_name LIKE ?", ["%alb%"]); ?>
+                    <?php while ($actor = $result->fetch()) : ?>
+                        <li class="list-group-item d-flex justify-content-between"><a class="link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="update.php?actor_id=<?= $actor['actor_id'] ?>"><?= $actor["first_name"] ?>, <?= $actor["last_name"] ?></a><span><a href="delete.php?actor_id=<?= $actor['actor_id'] ?>"><i class="fa-solid fa-trash-can"></i></a></span></li>
+                    <?php endwhile; ?>
+
+
+                    <?php /*foreach ($result->fetchAll() as $actor) : ?>
+                        <li class="list-group-item"><?= $actor["first_name"] ?>, <?= $actor["last_name"] ?></li>
+                    <?php endforeach; */ ?>
+                </ul>
+            </div>
+
+        </div>
+        <hr>
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">
+                    Actors SQL query #3 with
+                </div>
+                <!--query eseguita in cui il parametro passato con il ? i parametri passati vengono specificati
+                    secondo l'ordine con cui vengono passati ogni ? corrisponde ad un argomento si possono
+                    inserire anche piu di uno  sempre insieme dentro le quadre -->
+
+                <ul class="list-group">
+                    <?php $result =  $db->getData("SELECT * FROM actor ORDER BY actor_id DESC LIMIT 5", []); ?>
+                    <?php while ($actor = $result->fetch()) : ?>
+                        <li class="list-group-item d-flex justify-content-between"><a class="link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" href="update.php?actor_id=<?= $actor['actor_id'] ?>"><?= $actor["first_name"] ?>, <?= $actor["last_name"] ?></a><a href="delete.php?actor_id=<?= $actor['actor_id'] ?>"><i class="fa-solid fa-trash-can"></i></a></li>
+                    <?php endwhile; ?>
+
+
+                    <?php /*foreach ($result->fetchAll() as $actor) : ?>
+                        <li class="list-group-item"><?= $actor["first_name"] ?>, <?= $actor["last_name"] ?></li>
+                    <?php endforeach; */ ?>
+                </ul>
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+
+    <script src="https://kit.fontawesome.com/a64b9c8090.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+
 </html>
