@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     //Leggere il contenuto dell'immagine.
 
     $imageData = file_get_contents($_FILES["picture"]["tmp_name"]);
-   
+
     $imageType = $_FILES["picture"]["type"];
 
     $db2->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
@@ -43,9 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     ]);
 }
 
+
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    $name = $_GET['name'];
-    $surname = $_GET['surname'];
+
+    $name = $_GET['name'] ?? '';
+    $surname = $_GET['surname'] ?? '';
+    $phone_number = $_GET['phone_number'] ?? '';
+    $company = $_GET['company'] ?? '';
+    $role = $_GET['role'] ?? '';
+    $email = $_GET['email'] ?? '';
+    $birthdate = $_GET['birthdate'] ?? '';
+   
+    
 }
 
 
@@ -179,32 +188,33 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" value="<?= isset($name) ? $name : '' ?>">
+                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" value="<?= $name ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Cognome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" value="<?= isset($surname) ? $surname : '' ?>">
+                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" value="<?= $surname ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email">
+                    <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email" value="<?= $email ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Organizzazione</label>
-                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company">
+                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company" value="<?= $company ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ruolo</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role">
+                    <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role" value="<?= $role ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Numero di cellulare</label>
-                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number">
+                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number" value="<?= $phone_number ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Compleanno</label>
-                    <input type="date" class="form-control" required name="birthdate">
+                    <input type="date" class="form-control" required name="birthdate" value="<?= $birthdate ?>">
                 </div>
+
                 <button type="submit" class="btn btn-primary w-100">Salva Contatto</button>
             </form>
         </div>
@@ -227,8 +237,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                             <small><?= $contact['phone_number']  ?></small>
                         </div>
                         <div class="contact-buttons">
-                            <a  href="./homepage.php?name=<?= $contact['name']?>&surname=<?= $contact['surname'] ?>"   class="btn btn-sm btn-warning">Modifica</a>
-                            <a href="./homepage.php?contact_id=<?= $contact['id'] ?>&picture_id=<?=$pictureId?>" class="btn btn-sm btn-danger">Elimina</a>
+                            <a href="./homepage.php?name=<?= $contact['name'] ?>&surname=<?= $contact['surname'] ?>&phone_number=<?= $contact['phone_number'] ?>&company=<?= $contact['company'] ?>&role=<?= $contact['role'] ?>&email=<?= $contact['email'] ?>&birthdate=<?= $contact['birthdate'] ?>" class="btn btn-sm btn-warning">Modifica</a>
+                            <a href="./delete.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
                         </div>
                     </li>
                 <?php endwhile; ?>
