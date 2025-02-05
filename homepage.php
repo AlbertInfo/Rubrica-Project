@@ -1,11 +1,10 @@
 <?php
 
 require_once __DIR__ . '/common.php'; // per utilizzare le create dentro common.php
-
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     // header("Location : homepage.php"); //Reload della pagina
     $picture = $_FILES['picture'];
-    $pictureName = $_FILES['picture']['name'];
+    $pictureTmpName = $_FILES['picture']['tmp_name'];
     $name = $_POST['name'];
     $surname = $_POST['surname'];
     $email = $_POST['email'];
@@ -14,7 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $phone_number = $_POST['phone_number'];
     $birthdate = $_POST['birthdate'];
 
-//Verifica se l'email è gia presente.
+    // var_dump($_FILES['picture']);
+    //Verifica se l'email è gia presente.
     $checkEmail = $db2->prepare("SELECT id FROM contacts WHERE email = :email");
     $checkEmail->execute([":email" => $email]);
     if ($checkEmail->fetch()) {
@@ -25,25 +25,31 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         die("Errore nel caricamento dell'immagine.");
     }
     //Leggere il contenuto dell'immagine.
-    
+
     $imageData = file_get_contents($_FILES["picture"]["tmp_name"]);
+   
     $imageType = $_FILES["picture"]["type"];
 
     $db2->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
         [$imageData, $imageType]
 
     ]);
-    
-    $db2->setData("INSERT INTO contacts (name, surname, phone_number, company, role, picture, email, birthdate) VALUES (?,?,?,?,?,?,?,?)", [
-        [$name, $surname, $phone_number, $company, $role,$pictureName, $email, $birthdate]
+
+    $pictureId = $db2->lastInsertId();
+
+    $db2->setData("INSERT INTO contacts (name, surname, phone_number, company, role, picture, email, birthdate,picture_id) VALUES (?,?,?,?,?,?,?,?,?)", [
+        [$name, $surname, $phone_number, $company, $role, $pictureTmpName, $email, $birthdate, $pictureId]
 
     ]);
-
-
 }
+
+if ($_SERVER['REQUEST_METHOD'] == "GET") {
+    $name = $_GET['name'];
+    $surname = $_GET['surname'];
+}
+
+
 ?>
-
-
 <!DOCTYPE html>
 <html lang="it">
 
@@ -159,7 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 </head>
 
-
 <body>
     <div class="container-custom">
         <div class="form-container">
@@ -174,11 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name">
+                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" value="<?= isset($name) ? $name : '' ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Cognome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname">
+                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" value="<?= isset($surname) ? $surname : '' ?>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Email</label>
@@ -205,17 +210,29 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         </div>
         <div class="contacts-container">
             <h4 class="text-primary">Contatti Salvati</h4>
-            <div class="contact-item">
-                <img src="/mock/person-placeholder.jpg" class="contact-image" alt="Foto Contatto">
-                <div>
-                    <strong>Mario Rossi</strong><br>
-                    <small>+39 123 456 7890</small>
-                </div>
-                <div class="contact-buttons">
-                    <button class="btn btn-sm btn-warning">Modifica</button>
-                    <button class="btn btn-sm btn-danger">Elimina</button>
-                </div>
-            </div>
+            <ul class="list-group">
+                <?php $result =  $db2->getData("SELECT * FROM contacts "); ?>
+                <?php while ($contact = $result->fetch()) :
+                ?>
+
+
+                    <li class="list-group-item d-flex justify-content-between">
+                        <?php
+                        $pictureId = $contact['picture_id'];
+
+                        ?>
+                        <img src="<?= $contact['picture_id'] ? "viewImage.php?id=" . $contact['picture_id'] : "./mock/person-placeholder.jpg"; ?>" class="contact-image" alt="Foto Contatto">
+                        <div>
+                            <strong><?= $contact['name'] . PHP_EOL . $contact['surname'] ?></strong><br>
+                            <small><?= $contact['phone_number']  ?></small>
+                        </div>
+                        <div class="contact-buttons">
+                            <a  href="./homepage.php?name=<?= $contact['name']?>&surname=<?= $contact['surname'] ?>"   class="btn btn-sm btn-warning">Modifica</a>
+                            <a href="./homepage.php?contact_id=<?= $contact['id'] ?>&picture_id=<?=$pictureId?>" class="btn btn-sm btn-danger">Elimina</a>
+                        </div>
+                    </li>
+                <?php endwhile; ?>
+            </ul>
         </div>
     </div>
 
