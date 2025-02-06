@@ -188,31 +188,31 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" value="<?= $name ?>">
+                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" >
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Cognome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" value="<?= $surname ?>">
+                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" >
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email" value="<?= $email ?>">
+                    <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email" >
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Organizzazione</label>
-                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company" value="<?= $company ?>">
+                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company" >
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ruolo</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role" value="<?= $role ?>">
+                    <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role" >
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Numero di cellulare</label>
-                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number" value="<?= $phone_number ?>">
+                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number" >
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Compleanno</label>
-                    <input type="date" class="form-control" required name="birthdate" value="<?= $birthdate ?>">
+                    <input type="date" class="form-control" required name="birthdate" >
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">Salva Contatto</button>
@@ -237,7 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                             <small><?= $contact['phone_number']  ?></small>
                         </div>
                         <div class="contact-buttons">
-                            <a href="./homepage.php?name=<?= $contact['name'] ?>&surname=<?= $contact['surname'] ?>&phone_number=<?= $contact['phone_number'] ?>&company=<?= $contact['company'] ?>&role=<?= $contact['role'] ?>&email=<?= $contact['email'] ?>&birthdate=<?= $contact['birthdate'] ?>" class="btn btn-sm btn-warning">Modifica</a>
+                            <a href="./updateContact.php?id=<?= $contact['id'] ?>" class="btn btn-sm btn-warning">Modifica</a>
                             <a href="./delete.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
                         </div>
                     </li>
