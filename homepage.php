@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/common.php'; // per utilizzare le create dentro common.php
+require_once __DIR__ . '/common.php'; // 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    // header("Location : homepage.php"); //Reload della pagina
+    
     $picture = $_FILES['picture'];
     $pictureTmpName = $_FILES['picture']['tmp_name'];
     $name = $_POST['name'];
@@ -13,8 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $phone_number = $_POST['phone_number'];
     $birthdate = $_POST['birthdate'];
 
-    // var_dump($_FILES['picture']);
-    //Verifica se l'email è gia presente.
+  
     $checkEmail = $db2->prepare("SELECT id FROM contacts WHERE email = :email");
     $checkEmail->execute([":email" => $email]);
     if ($checkEmail->fetch()) {
@@ -24,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if ($_FILES["picture"]["error"] !== UPLOAD_ERR_OK) {
         die("Errore nel caricamento dell'immagine.");
     }
-    //Leggere il contenuto dell'immagine.
+    
 
     $imageData = file_get_contents($_FILES["picture"]["tmp_name"]);
 

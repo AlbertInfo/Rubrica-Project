@@ -1,8 +1,5 @@
 let form = document.getElementById('#contact-form');
 
-// form.addEventListener('onsubmit' , (e)=>{
-//     e.preventDefault();
-// })
 
 function changePlaceholder(event) {
    
