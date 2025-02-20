@@ -1,6 +1,6 @@
 <?php
 
-namespace Alberto\RubricaProject;
+namespace Database;
 
 
 use PDOStatement;

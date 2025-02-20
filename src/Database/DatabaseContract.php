@@ -1,6 +1,6 @@
 <?php
 
-namespace Alberto\RubricaProject;
+namespace Database;
 
 
 
@@ -16,6 +16,8 @@ interface DatabaseContract
     public function setData(string $command, array $items ) :void ;
 
     public function doWithTransaction(array $operations) :void;
+
+    public function lastInsertId();
 }
 
 

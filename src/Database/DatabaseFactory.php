@@ -1,10 +1,11 @@
 <?php
 
-namespace Alberto\RubricaProject;
+namespace Database;
 use Exception;
 use PDO;
 use PDOException;
 use Dotenv\Dotenv;
+
 
 //Questo è un factory pattern, abbiamo portato dentro questa classe
 //una istanza di creazione della connessione a db.
@@ -22,9 +23,7 @@ class DatabaseFactory
         if ($type == DatabaseContract::TYPE_PDO) {
             return self::CreateWithPdo($dbConfig);
         }
-        if ($type == DatabaseContract::TYPE_MySQLi) {
-            return self::CreateWithMySQLi($dbConfig);
-        }
+        
 
         throw new Exception("Not Implemented!");
     }
@@ -44,20 +43,7 @@ class DatabaseFactory
         }
     }
 
-    private static function CreateWithMySQLi(DbConfig $dbConfig): MySQLi
-    {
-
-        try {
-
-            $mysqli = new MySQLi($dbConfig); // creo una istanza della classe MyPDO che sta in src/MyPDO.php
-
-
-            return $mysqli;
-        } catch (Exception $e) {
-
-            throw  new Exception("Database connection failed :{$e->getMessage()}");
-        }
-    }
+    
 
     private static function GetDBConfig(): DBConfig
     {
@@ -66,7 +52,7 @@ class DatabaseFactory
 
         //Assegno ad una variabile la creazione di una dotenv immutabile
         //Questo metodo chiama una factory
-        $dotenv = Dotenv::createImmutable(__DIR__ . "/../"); // Devo passare la variabile DIR che mappa la directory del progetto
+        $dotenv = Dotenv::createImmutable(__DIR__ . "/../../"); // Devo passare la variabile DIR che mappa la directory del progetto
         $dotenv->load(); //carico le variabili di ambiente.
         //Con questa riga di codice : attribusico il required a i parametri di configurazione
         //In questo modo rimane più facile isolare un ipotetico problema relativo alle credenziali

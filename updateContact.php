@@ -1,10 +1,11 @@
 <?php
+namespace App;
 require_once __DIR__ . '/common.php'; // per utilizzare le create e l'autoload dentro common.php
 
 
 $id = $_GET['id'];
 
-$result =  $db2->getData("SELECT * FROM contacts WHERE id = ?", [$id]);
+$result =  $db->getData("SELECT * FROM contacts WHERE id = ?", [$id]);
 $selectedContact = $result->fetch();
 $name = $selectedContact['name'] ?? '';
 $surname = $selectedContact['surname'] ?? '';
@@ -17,7 +18,7 @@ $pictureId = $selectedContact['picture_id'];
 $img = $selectedContact['picture_id'] ? "viewImage.php?id=" . $selectedContact['picture_id'] : "./mock/person-placeholder.jpg";
 $pictureTmpName = $selectedContact['picture'];
 
-$stmt = $db2->getData("SELECT content, type FROM pictures WHERE id = ?", [$pictureId]);
+$stmt = $db->getData("SELECT content, type FROM pictures WHERE id = ?", [$pictureId]);
 $image = $stmt->fetch();
 
 
@@ -47,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     }
 
 
-    $db2->setData("UPDATE  pictures SET content = ? , type = ?  WHERE  id = ? ", [
+    $db->setData("UPDATE  pictures SET content = ? , type = ?  WHERE  id = ? ", [
         [$content, $imageType, $pictureId]
 
     ]);
 
 
-    $db2->setData("UPDATE contacts SET name = ?, surname = ?, phone_number = ?, company = ?, role = ?, picture =?, email =?, birthdate =?,picture_id =?  WHERE id = ?", [
+    $db->setData("UPDATE contacts SET name = ?, surname = ?, phone_number = ?, company = ?, role = ?, picture =?, email =?, birthdate =?,picture_id =?  WHERE id = ?", [
         [$newName, $newSurname, $newPhone_number, $newCompany, $newRole, $pictureTmpName, $newEmail, $newBirthdate, $pictureId, $id]
 
     ]);

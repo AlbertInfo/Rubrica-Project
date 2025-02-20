@@ -3,7 +3,9 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Alberto\\RubricaProject\\": "src/"
+            "App\\" : "src/",
+            "Database\\": "src/Database",
+            "ContactManagement\\": "src/ContactManagement/"
         }
     },
     "authors": [

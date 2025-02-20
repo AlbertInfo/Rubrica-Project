@@ -1,5 +1,5 @@
 <?php
-namespace Alberto\RubricaProject;
+namespace Database;
 
 interface DatabaseQueryResultContract
 {

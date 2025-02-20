@@ -1,9 +1,9 @@
 <?php
 //Attraverso il namespace impostato come da composer.json riesco a fare l'autoload delle classi senza
 //dover fare require dei singoli file.php
-namespace Alberto\RubricaProject;
+namespace Database;
 
-use Alberto\RubricaProject\DatabaseContract;
+use Database\DatabaseContract;
 use Exception;
 
 //PDO è UNA classe nativa di php e richiede lo slash prima 
@@ -82,4 +82,6 @@ class MyPDO extends \PDO implements DatabaseContract
         port={$port};
         dbname={$dbName}";
     }
+
+    
 }

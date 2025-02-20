@@ -1,6 +1,6 @@
 <?php
 
-namespace Alberto\RubricaProject;
+namespace App;
 class Helper
 {
 
@@ -13,5 +13,9 @@ class Helper
 
 
         return array_key_exists($key, $values) ? $values[$key] : $defaultValue;
+    }
+
+    public static function reloadPage(string $page){
+        header("Location : $page"); //Reload della pagina
     }
 }
