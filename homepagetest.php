@@ -2,6 +2,7 @@
 
 namespace App;
 use ContactManagement\Contact;
+use ContactManagement\DeleteContact;
 use ContactManagement\UpdateContact;
 use PhpParser\Node\Expr\New_;
 
@@ -30,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     <title>Creazione Contatto</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/domManipolation.js"></script>
+   <script src="./js/domManipolation.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -140,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     <div class="container-custom">
         <div class="form-container">
             <h3 class="text-center text-primary">Nuovo Contatto</h3>
+            <button id="close-form" class="close-button">&times;</button>
             <form method="POST" id="contact-form" enctype="multipart/form-data">
                 <div class="text-center">
                     <label class="image-upload" id="upload-image">
@@ -182,6 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         </div>
         <div class="contacts-container">
             <h4 class="text-primary">Contatti Salvati</h4>
+            <button class="btn btn-success mb-3" id="toggleFormBtn">Aggiungi Nuovo Contatto</button>
             <ul class="list-group">
 
                 <?php ($contacts = Contact::contactsList()); ?>
@@ -199,7 +203,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                         </div>
                         <div class="contact-buttons">
                             <a href="./src/ContactManagement/UpdateContact.php?contact_id=<?= $contact['id'] ?>" class="btn btn-sm btn-warning">Modifica</a>
-                            <a href="./delete.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
+                            <a href="./src/ContactManagement/DeleteContact.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
+                            
                         </div>
                     </li>
                 <?php endforeach; ?>

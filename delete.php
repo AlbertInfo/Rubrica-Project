@@ -11,6 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $db->getData("DELETE FROM contacts WHERE id = ?", [$contactId]);
     $db->getData("DELETE FROM pictures WHERE id = ?", [$imgId]);
 
-    header("Location : homepage.php"); //Reload della pagina
+    header("Location : homepagetest.php"); //Reload della pagina
 }
 

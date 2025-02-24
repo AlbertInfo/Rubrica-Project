@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     
 
     $imageData = file_get_contents($_FILES["picture"]["tmp_name"]);
+    
 
     $imageType = $_FILES["picture"]["type"];
 

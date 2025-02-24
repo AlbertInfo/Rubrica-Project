@@ -7,13 +7,15 @@ require_once __DIR__ . '/../../common.php'; // per utilizzare le create e l'auto
 use ContactManagement\Contact;
 use Database\GetDb;
 
+
+
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    var_dump($_GET['contact_id']);
+
     UpdateContact::selectContact($_GET['contact_id']);
 }
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
-    UpdateContact::updateContactInfo($_POST);
+    UpdateContact::updateContactImage($_FILES, $_POST, $_GET['contact_id']);
 }
 
 
@@ -22,7 +24,7 @@ class UpdateContact
 {
 
 
-    // private static $db = null;
+
     public static string $name = '';
     public static string $surname = '';
     public  static string $email = '';
@@ -30,48 +32,36 @@ class UpdateContact
     public static string $company = '';
     public  static string $role = '';
     public static  string $birthdate = '';
-    public  static ? int $pictureId = null;
-    public string $imageType;
-    public string $imageData;
+    public  static ?int $pictureId = null;
+    public static string $imageType = '';
+    public  static string $imageTmpName = '';
+    public static ?int $contactId = null;
 
 
 
-    // public function __construct(int $id)
-    // {
-    //     self::initDb();
-    //     // $this->selectContact($id);
-    // }
 
-    // private static function initDb()
-    // {
-    //     if (self::$db === null) {
-    //         self::$db = GetDb::getDb();
-    //     }
-    // }
+
 
     public  static function selectContact(int $id)
     {
-
+        self::$contactId = $id;
         $db = GetDb::getDb();
         $result = $db->getData("SELECT * FROM contacts WHERE id = ?", [$id]);
         $selectedContact = $result->fetch();
-        $stmt =$db->getData("SELECT content, type FROM pictures WHERE id = ?", [$selectedContact['picture_id']]);
+        $stmt = $db->getData("SELECT content, type FROM pictures WHERE id = ?", [$selectedContact['picture_id']]);
         $image = $stmt->fetch();
-        var_dump($selectedContact['picture_id']);
-        self::setImage($selectedContact['picture_id']);
-        self::showContactInfo($selectedContact);
-        
+        UpdateContact::setImage($selectedContact['picture_id'], $selectedContact['picture']);
+        UpdateContact::showContactInfo($selectedContact);
     }
 
-    public static function setImage(int $imageId)
+    public static function setImage(int $imageId, string $picture)
     {
 
-       self::$pictureId =$imageId;
-       
-
-   
-
+        self::$pictureId = $imageId;
+        self::$imageTmpName = $picture;
     }
+
+
 
     public static  function showContactInfo(array $selectedContact)
     {
@@ -84,47 +74,67 @@ class UpdateContact
         self::$role = $selectedContact['role'] ?? '';
         self::$email = $selectedContact['email'] ?? '';
         self::$birthdate = $selectedContact['birthdate'] ?? '';
-        // self::$pictureId = $selectedContact['picture_id'] ?? 0;
-        // self::$pictureId = $selectedContact['picture_id'] ? "viewImage.php?id=" . $selectedContact['picture_id'] : "./mock/person-placeholder.jpg";
-        
-
-
     }
 
-    public static function updateContactInfo(array $data)
+    public static function updateContactInfo(array $data, int $pictureId, string $pictureTmpName, int $contactId)
+    {
+        $db = GetDb::getDb();
+        $id = $contactId;
+
+
+
+        $db->setData("UPDATE contacts SET name = ?, surname = ?, phone_number = ?, company = ?, role = ?, picture =?, email =?, birthdate =?,picture_id =?  WHERE id = ?", [
+            [$data['name'], $data['surname'], $data['phone_number'], $data['company'], $data['role'], $pictureTmpName, $data['email'], $data['birthdate'], $pictureId, $id]
+
+        ]);
+
+
+        header("Location : ../../homepagetest.php");
+    }
+
+    public static function updateContactImage(array $file, array $newContactInfo, $contactId)
     {
 
-        self::$name = $data['name'] ?? '';
-        self::$surname = $data['surname'] ?? '';
-        self::$phoneNumber = $data['phone_number'] ?? '';
-        self::$company = $data['company'] ?? '';
-        self::$role = $data['role'] ?? '';
-        self::$email = $data['email'] ?? '';
-        self::$birthdate = $data['birthdate'] ?? '';
-        self::$pictureId = $data['picture_id'] ?? 0;
-        // self::$db->setData("UPDATE  pictures SET content = ? , type = ?  WHERE  id = ? ", [
-        //     [$content, $imageType, $pictureId]
-
-        // ]);
+        $db = GetDb::getDb();
 
 
-        // self::$db->setData("UPDATE contacts SET name = ?, surname = ?, phone_number = ?, company = ?, role = ?, picture =?, email =?, birthdate =?,picture_id =?  WHERE id = ?", [
-        //     [$newName, $newSurname, $newPhone_number, $newCompany, $newRole, $pictureTmpName, $newEmail, $newBirthdate, $pictureId, $id]
 
-        // ]);
+        $results = $db->getData("SELECT picture_id , picture from contacts where id = ?", [$contactId]);
+        $data = $results->fetch();
+        $imageId = $data['picture_id'];
+
+        $stmt = $db->getData("SELECT content, type FROM pictures WHERE id = ?", [$imageId]);
+        $image = $stmt->fetch();
+        $pictureTmpName = $data['picture'];
+        $imageType = $image['type'];
 
 
-        // header("Location : homepage.php");
+
+        $pictureTmpName = $file["picture"]["tmp_name"];
+        $imageType = $file["picture"]["type"];
+
+
+        if (file_exists($pictureTmpName)) {
+            $content = file_get_contents($pictureTmpName);
+            $pictureTmpName = $file["picture"]["tmp_name"];
+        } else {
+
+            $content = $image['content'];
+            $imageType = $image['type'];
+            $pictureTmpName = $data['picture'];
+        }
+
+
+
+
+        $db->setData("UPDATE  pictures SET content = ? , type = ?  WHERE  id = ? ", [
+            [$content, $imageType, $imageId]
+
+        ]);
+
+        UpdateContact::updateContactInfo($newContactInfo, $imageId, $pictureTmpName, $contactId);
     }
 }
-
-
-
-
-
-
-
-
 
 ?>
 

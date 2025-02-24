@@ -25,18 +25,25 @@ class Contact
     {
         self::initDb();
         if ($file["picture"]["error"] !== UPLOAD_ERR_OK) {
-            die("Errore nel caricamento dell'immagine.");
+            // die("Errore nel caricamento dell'immagine.");
+            $imageType = 'jpg';
+            $placeholder = 'mock\person-placeholder.jpg';
+            $imageData = file_get_contents($placeholder);
+            self::$db->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
+                [$imageData, $imageType]
+    
+            ]);
+
+
+        }if ($file["picture"]["error"] == UPLOAD_ERR_OK){
+
+            $imageData = file_get_contents($file["picture"]["tmp_name"]);
+            $imageType = $file["picture"]["type"];
+            self::$db->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
+                [$imageData, $imageType]
+    
+            ]);
         }
-
-
-        $imageData = file_get_contents($file["picture"]["tmp_name"]);
-
-        $imageType = $file["picture"]["type"];
-
-        self::$db->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
-            [$imageData, $imageType]
-
-        ]);
     }
 
 
@@ -59,6 +66,4 @@ class Contact
 
         return $contacts;
     }
-
-    
 }
