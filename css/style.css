@@ -42,16 +42,17 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    margin: 0; /* Evita margini extra */
+    margin: 0; 
 }
+
 
 .container-custom {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 100%; /* Assicurati che la larghezza sia dinamica */
-    max-width: 900px; /* Limita la larghezza massima */
-    margin: 0 auto; /* Centra orizzontalmente */
+    width: 100%; 
+    max-width: 900px; 
+    margin: 0 auto; 
 }
 
 .form-container,
@@ -78,14 +79,9 @@ body {
         width: 50%;
     }
 }
-2️⃣ Centraggio del Form (con X di chiusura)
-Ora, per assicurarti che il form e la X siano centrati correttamente, dovrai anche garantire che il contenitore del form sia relativamente posizionato per ospitare il pulsante di chiusura in alto a destra:
 
-Aggiungi questa parte al CSS:
 
-css
-Copia
-Modifica
+
 .form-container {
     position: relative;
     background: white;
@@ -112,4 +108,17 @@ Modifica
 .close-button:hover {
     color: #a94442;
     transform: scale(1.2);
+}
+
+
+.contacts-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-y: auto;
+    scroll-behavior: smooth; /* Scroll più fluido */
+}
+
+/* Nasconde la scrollbar su WebKit (Chrome, Edge, Safari) */
+.contacts-container::-webkit-scrollbar {
+    display: none;
 }

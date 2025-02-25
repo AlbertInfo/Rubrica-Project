@@ -1,60 +1,23 @@
 <?php
 
+namespace App;
+use ContactManagement\Contact;
+use ContactManagement\DeleteContact;
+use ContactManagement\UpdateContact;
+use PhpParser\Node\Expr\New_;
+
 require_once __DIR__ . '/common.php'; // 
+
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    
-    $picture = $_FILES['picture'];
-    $pictureTmpName = $_FILES['picture']['tmp_name'];
-    $name = $_POST['name'];
-    $surname = $_POST['surname'];
-    $email = $_POST['email'];
-    $company = $_POST['company'];
-    $role = $_POST['role'];
-    $phone_number = $_POST['phone_number'];
-    $birthdate = $_POST['birthdate'];
 
-  
-    $checkEmail = $db->prepare("SELECT id FROM contacts WHERE email = :email");
-    $checkEmail->execute([":email" => $email]);
-    if ($checkEmail->fetch()) {
-        die("Errore: L'email esiste già!");
-    }
-
-    if ($_FILES["picture"]["error"] !== UPLOAD_ERR_OK) {
-        die("Errore nel caricamento dell'immagine.");
-    }
-    
-
-    $imageData = file_get_contents($_FILES["picture"]["tmp_name"]);
-    
-
-    $imageType = $_FILES["picture"]["type"];
-
-    $db->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
-        [$imageData, $imageType]
-
-    ]);
-
-    $pictureId = $db->lastInsertId();
-
-    $db->setData("INSERT INTO contacts (name, surname, phone_number, company, role, picture, email, birthdate,picture_id) VALUES (?,?,?,?,?,?,?,?,?)", [
-        [$name, $surname, $phone_number, $company, $role, $pictureTmpName, $email, $birthdate, $pictureId]
-
-    ]);
+    Contact::setImage($_FILES);
+    Contact::addContact($_POST, $_FILES);
 }
 
 
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
-    $name = $_GET['name'] ?? '';
-    $surname = $_GET['surname'] ?? '';
-    $phone_number = $_GET['phone_number'] ?? '';
-    $company = $_GET['company'] ?? '';
-    $role = $_GET['role'] ?? '';
-    $email = $_GET['email'] ?? '';
-    $birthdate = $_GET['birthdate'] ?? '';
-   
-    
+    Contact::contactsList();
 }
 
 
@@ -68,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     <title>Creazione Contatto</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/domManipolation.js"></script>
+   <script src="./js/domManipolation.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
     <style>
         body {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -178,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     <div class="container-custom">
         <div class="form-container">
             <h3 class="text-center text-primary">Nuovo Contatto</h3>
+            <button id="close-form" class="close-button">&times;</button>
             <form method="POST" id="contact-form" enctype="multipart/form-data">
                 <div class="text-center">
                     <label class="image-upload" id="upload-image">
@@ -188,31 +153,31 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Nome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" >
+                    <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Cognome</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" >
+                    <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email" >
+                    <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Organizzazione</label>
-                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company" >
+                    <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ruolo</label>
-                    <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role" >
+                    <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Numero di cellulare</label>
-                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number" >
+                    <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Compleanno</label>
-                    <input type="date" class="form-control" required name="birthdate" >
+                    <input type="date" class="form-control" required name="birthdate">
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">Salva Contatto</button>
@@ -220,12 +185,12 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         </div>
         <div class="contacts-container">
             <h4 class="text-primary">Contatti Salvati</h4>
+            <button class="btn btn-success mb-3" id="toggleFormBtn">Aggiungi Nuovo Contatto</button>
             <ul class="list-group">
-                <?php $result =  $db->getData("SELECT * FROM contacts "); ?>
-                <?php while ($contact = $result->fetch()) :
+
+                <?php ($contacts = Contact::contactsList()); ?>
+                <?php foreach ($contacts as $contact) :
                 ?>
-
-
                     <li class="list-group-item d-flex justify-content-between">
                         <?php
                         $pictureId = $contact['picture_id'];
@@ -237,11 +202,13 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                             <small><?= $contact['phone_number']  ?></small>
                         </div>
                         <div class="contact-buttons">
-                            <a href="./updateContact.php?id=<?= $contact['id'] ?>" class="btn btn-sm btn-warning">Modifica</a>
-                            <a href="./delete.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
+                            <a href="./src/ContactManagement/UpdateContact.php?contact_id=<?= $contact['id'] ?>" class="btn btn-sm btn-warning">Modifica</a>
+                            <a href="./src/ContactManagement/DeleteContact.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
+                            
                         </div>
                     </li>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
+
             </ul>
         </div>
     </div>

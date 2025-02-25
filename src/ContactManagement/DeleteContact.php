@@ -12,16 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $imgId = $_GET['picture_id'];
 
     DeleteContact::deleteContact($contactId, $imgId);
-
-
-  
 }
 
 
 class DeleteContact
+
 {
-
-
 
     public static function deleteContact(int $contactId, int $imgId)
     {
@@ -29,6 +25,6 @@ class DeleteContact
         $db->getData("DELETE FROM contacts WHERE id = ?", [$contactId]);
         $db->getData("DELETE FROM pictures WHERE id = ?", [$imgId]);
 
-        header("Location : ../../homepagetest.php");
+        header("Location : ../../homepage.php");
     }
 }

@@ -25,23 +25,21 @@ class Contact
     {
         self::initDb();
         if ($file["picture"]["error"] !== UPLOAD_ERR_OK) {
-            // die("Errore nel caricamento dell'immagine.");
             $imageType = 'jpg';
             $placeholder = 'mock\person-placeholder.jpg';
             $imageData = file_get_contents($placeholder);
             self::$db->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
                 [$imageData, $imageType]
-    
+
             ]);
-
-
-        }if ($file["picture"]["error"] == UPLOAD_ERR_OK){
+        }
+        if ($file["picture"]["error"] == UPLOAD_ERR_OK) {
 
             $imageData = file_get_contents($file["picture"]["tmp_name"]);
             $imageType = $file["picture"]["type"];
             self::$db->setData("INSERT INTO pictures (content, type) VALUES (?,?)", [
                 [$imageData, $imageType]
-    
+
             ]);
         }
     }
@@ -52,6 +50,14 @@ class Contact
     {
         self::initDb();
         $pictureId = GetDb::lastInsertId();
+
+        $checkEmail = self::$db->prepare("SELECT id FROM contacts WHERE email = :email");
+        $checkEmail->execute([":email" => $info['email']]);
+        if ($checkEmail->fetch()) {
+            die("Errore: L'email esiste già!");
+        }
+    
+
         self::$db->setData("INSERT INTO contacts (name, surname, phone_number, company, role, picture, email, birthdate,picture_id) VALUES (?,?,?,?,?,?,?,?,?)", [
             [$info['name'], $info['surname'], $info['phone_number'], $info['company'], $info['role'], $file['picture']['tmp_name'], $info['email'], $info['birthdate'], $pictureId]
 

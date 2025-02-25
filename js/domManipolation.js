@@ -8,7 +8,7 @@ function changePlaceholder(event) {
     const input = event.target;
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.type.startsWith("image/")) { // Verifica che il file sia un'immagine
+        if (file.type.startsWith("image/")) { 
             const reader = new FileReader();
             reader.onload = function (e) {
                 document.getElementById("previewImage").src = e.target.result;
@@ -29,14 +29,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     toggleButton.addEventListener("click", function () {
         if (formContainer.style.display === "none" || formContainer.style.display === "") {
-            formContainer.style.display = "block"; // Mostra il form
+            formContainer.style.display = "block"; 
             setTimeout(() => {
-                formContainer.style.opacity = "1"; // Effetto dissolvenza
+                formContainer.style.opacity = "1"; 
             }, 10);
         } else {
-            formContainer.style.opacity = "0"; // Inizia l'animazione di fade-out
+            formContainer.style.opacity = "0"; 
             setTimeout(() => {
-                formContainer.style.display = "none"; // Nasconde il form dopo l'animazione
+                formContainer.style.display = "none"; 
             }, 500);
         }
     });
@@ -52,6 +52,26 @@ document.addEventListener("DOMContentLoaded", function () {
         formContainer.style.transform = "translateY(-20px)";
         setTimeout(() => {
             formContainer.classList.add("hidden");
-        }, 300); // Tempo per l'animazione
+        }, 300); 
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const contactList = document.querySelector(".contacts-container");
+    let isScrolling; // Per il debounce dello scroll
+
+    contactList.addEventListener("wheel", function (event) {
+        event.preventDefault();
+        let scrollAmount = event.deltaY * 0.5; // Rallenta lo scroll per più controllo
+        contactList.scrollBy({
+            top: scrollAmount,
+            behavior: "smooth" // Effetto scorrevole
+        });
+
+        // Ferma lo scrolling con un effetto morbido quando si smette di scorrere
+        window.clearTimeout(isScrolling);
+        isScrolling = setTimeout(() => {
+            contactList.style.scrollBehavior = "smooth"; // Riapplica lo scroll morbido dopo il rilascio
+        }, 100);
     });
 });
