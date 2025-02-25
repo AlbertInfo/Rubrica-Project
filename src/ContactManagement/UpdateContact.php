@@ -89,7 +89,7 @@ class UpdateContact
         ]);
 
 
-        header("Location : ../../homepagetest.php");
+        header("Location : ../../homepage.php");
     }
 
     public static function updateContactImage(array $file, array $newContactInfo, $contactId)
