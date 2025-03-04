@@ -1,21 +1,36 @@
 <?php
 
 namespace App;
-use ContactManagement\Contact;
 
-
+require_once __DIR__ . '/vendor/autoload.php'; //caricare l'autoloader;
 require_once __DIR__ . '/common.php'; // 
+
+use ContactManagement\AddContact;
+use ContactManagement\ContactsList;
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// $db = GetDb::getDb();
+// $contacts = new ContactList($db);
+
 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
-    Contact::setImage($_FILES);
-    Contact::addContact($_POST, $_FILES);
+
+    $results = new AddContact();
+    $results->setImage($_FILES);
+    $results->addContact($_POST, $_FILES);
+    $data = new ContactsList();
+    $contacts = $data->contactsList();
 }
 
 
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
-    Contact::contactsList();
+    $results = new ContactsList();
+    $contacts = $results->contactsList();
 }
 
 
@@ -29,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     <title>Creazione Contatto</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-   <script src="./js/domManipolation.js"></script>
+    <script src="./js/domManipolation.js"></script>
     <link rel="stylesheet" href="./css/style.css">
     <style>
         body {
@@ -186,10 +201,17 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             <button class="btn btn-success mb-3" id="toggleFormBtn">Aggiungi Nuovo Contatto</button>
             <ul class="list-group">
 
-                <?php ($contacts = Contact::contactsList()); ?>
+                <?php /* ($contacts = Contact::contactsList()); */ ?>
                 <?php foreach ($contacts as $contact) :
                 ?>
-                    <li class="list-group-item d-flex justify-content-between">
+                    <li class="list-group-item d-flex justify-content-between contact-item"
+                        data-id="<?= $contact['id'] ?>"
+                        data-name="<?= htmlspecialchars($contact['name']) ?>"
+                        data-surname="<?= htmlspecialchars($contact['surname']) ?>"
+                        data-phone="<?= htmlspecialchars($contact['phone_number']) ?>"
+                        data-email="<?= isset($contact['email']) ? htmlspecialchars($contact['email']) : 'N/A' ?>"
+                        data-photo="<?= $contact['picture_id'] ? "viewImage.php?id=" . $contact['picture_id'] : "./mock/person-placeholder.jpg" ?>">
+
                         <?php
                         $pictureId = $contact['picture_id'];
 
@@ -202,12 +224,23 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                         <div class="contact-buttons">
                             <a href="./src/ContactManagement/UpdateContact.php?contact_id=<?= $contact['id'] ?>" class="btn btn-sm btn-warning">Modifica</a>
                             <a href="./src/ContactManagement/DeleteContact.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
-                            
+
                         </div>
                     </li>
                 <?php endforeach; ?>
 
             </ul>
+        </div>
+        <div class="contact-details-overlay">
+            <div class="contact-details-card">
+                <span class="close-btn">&times;</span>
+                <img id="contact-photo" src="" alt="Foto Contatto">
+                <h2 id="contact-name"></h2>
+                <p><strong>Telefono:</strong> <span id="contact-phone"></span></p>
+                <p><strong>Email:</strong> <span id="contact-email"></span></p>
+                <a href="./src/ContactManagement/UpdateContact.php?contact_id=<?= $contact['id'] ?>" class="btn btn-sm btn-warning">Modifica</a>
+                <a href="./src/ContactManagement/DeleteContact.php?contact_id=<?= $contact['id'] ?>&picture_id=<?= $pictureId ?>" class="btn btn-sm btn-danger">Elimina</a>
+            </div>
         </div>
     </div>
 

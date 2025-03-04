@@ -1,6 +1,7 @@
 <?php
 
 namespace Database;
+;
 //Questa è una classe  DTO CHE setta la configurazione del db;
 class DBConfig
 {

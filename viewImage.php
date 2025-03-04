@@ -3,7 +3,7 @@ require_once __DIR__ . '/common.php'; // per utilizzare le create dentro common.
 
 $pictureId = $_GET['id'];
 
-// Query per recuperare l'immagine
+
 $stmt = $db->getData("SELECT content, type FROM pictures WHERE id = ?", [$pictureId]);
 $image = $stmt->fetch();
 

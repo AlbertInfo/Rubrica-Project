@@ -75,3 +75,36 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 100);
     });
 });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const contactItems = document.querySelectorAll(".contact-item");
+    const overlay = document.querySelector(".contact-details-overlay");
+    const closeBtn = document.querySelector(".close-btn");
+
+    const contactName = document.getElementById("contact-name");
+    const contactPhone = document.getElementById("contact-phone");
+    const contactEmail = document.getElementById("contact-email");
+    const contactPhoto = document.getElementById("contact-photo");
+
+    contactItems.forEach(item => {
+        item.addEventListener("click", function () {
+            contactName.textContent = this.dataset.name + " " + this.dataset.surname;
+            contactPhone.textContent = this.dataset.phone;
+            contactEmail.textContent = this.dataset.email;
+            contactPhoto.src = this.querySelector("img").src;
+
+            overlay.classList.add("active");
+        });
+    });
+
+    closeBtn.addEventListener("click", function () {
+        overlay.classList.remove("active");
+    });
+
+    overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+            overlay.classList.remove("active");
+        }
+    });
+});

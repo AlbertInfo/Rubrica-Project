@@ -1,89 +1,99 @@
 <?php
-
 namespace ContactManagement;
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../common.php'; // per utilizzare le create e l'autoload dentro common.php
 
-use ContactManagement\Contact;
-use Database\GetDb;
 
+use Database\MyPDO;
+use Database\GetDbTest;
 
-
-if ($_SERVER['REQUEST_METHOD'] == "GET") {
-
-    UpdateContact::selectContact($_GET['contact_id']);
-}
-if ($_SERVER['REQUEST_METHOD'] == "POST") {
-
-    UpdateContact::updateContactImage($_FILES, $_POST, $_GET['contact_id']);
-}
-
-
-
-class UpdateContact
+class UpdateContactTest implements UpdateContactContract
 {
 
 
 
-    public static string $name = '';
-    public static string $surname = '';
-    public  static string $email = '';
-    public  static string $phoneNumber = '';
-    public static string $company = '';
-    public  static string $role = '';
-    public static  string $birthdate = '';
-    public  static ?int $pictureId = null;
-    public static string $imageType = '';
-    public  static string $imageTmpName = '';
-    public static ?int $contactId = null;
+    public  string $name = '';
+    public  string $surname = '';
+    public  string $email = '';
+    public  string $phoneNumber = '';
+    public  string $company = '';
+    public  string $role = '';
+    public  string $birthdate = '';
+    public  ?int $pictureId = null;
+    public  string $imageType = '';
+    public  string $imageTmpName = '';
+    public  ?int $contactId = null;
 
 
 
 
+    public  ?MyPDO  $db = null;
 
-
-    public  static function selectContact(int $id)
+    public  function getDb()
     {
-        self::$contactId = $id;
-        $db = GetDb::getDb();
-        $result = $db->getData("SELECT * FROM contacts WHERE id = ?", [$id]);
+
+        return $this->db;
+    }
+
+    public function setDb()
+    {
+
+        $this->db = GetDbTest::getDb();
+    }
+
+
+    public   function selectContact(int $id)
+    {
+        $this->contactId = $id;
+        if($this->db == null){
+
+            $this->setDb();
+        }
+        $result = $this->db->getData("SELECT * FROM contacts WHERE id = ?", [$id]);
         $selectedContact = $result->fetch();
-        $stmt = $db->getData("SELECT content, type FROM pictures WHERE id = ?", [$selectedContact['picture_id']]);
+        $stmt = $this->db->getData("SELECT content, type FROM pictures WHERE id = ?", [$selectedContact['picture_id']]);
         $image = $stmt->fetch();
-        UpdateContact::setImage($selectedContact['picture_id'], $selectedContact['picture']);
-        UpdateContact::showContactInfo($selectedContact);
+        $this->setImage($selectedContact['picture_id'], $selectedContact['picture']);
+        $this->showContactInfo($selectedContact);
     }
 
-    public static function setImage(int $imageId, string $picture)
+    public  function setImage(int $imageId, string $picture)
     {
 
-        self::$pictureId = $imageId;
-        self::$imageTmpName = $picture;
+        $this->pictureId = $imageId;
+        $this->imageTmpName = $picture;
     }
 
 
 
-    public static  function showContactInfo(array $selectedContact)
+    public  function showContactInfo(array $selectedContact)
     {
 
 
-        self::$name = $selectedContact['name'] ?? '';
-        self::$surname = $selectedContact['surname'] ?? '';
-        self::$phoneNumber = $selectedContact['phone_number'] ?? '';
-        self::$company = $selectedContact['company'] ?? '';
-        self::$role = $selectedContact['role'] ?? '';
-        self::$email = $selectedContact['email'] ?? '';
-        self::$birthdate = $selectedContact['birthdate'] ?? '';
+        $this->name = $selectedContact['name'] ?? '';
+        $this->surname = $selectedContact['surname'] ?? '';
+        $this->phoneNumber = $selectedContact['phone_number'] ?? '';
+        $this->company = $selectedContact['company'] ?? '';
+        $this->role = $selectedContact['role'] ?? '';
+        $this->email = $selectedContact['email'] ?? '';
+        $this->birthdate = $selectedContact['birthdate'] ?? '';
     }
 
-    public static function updateContactInfo(array $data, int $pictureId, string $pictureTmpName, int $contactId)
+    public  function updateContactInfo(array $data, int $pictureId, string $pictureTmpName, int $contactId)
     {
-        $db = GetDb::getDb();
+        if($this->db == null){
+
+            $this->setDb();
+        }
+        
         $id = $contactId;
 
 
 
-        $db->setData("UPDATE contacts SET name = ?, surname = ?, phone_number = ?, company = ?, role = ?, picture =?, email =?, birthdate =?,picture_id =?  WHERE id = ?", [
+        $this->db->setData("UPDATE contacts SET name = ?, surname = ?, phone_number = ?, company = ?, role = ?, picture =?, email =?, birthdate =?,picture_id =?  WHERE id = ?", [
             [$data['name'], $data['surname'], $data['phone_number'], $data['company'], $data['role'], $pictureTmpName, $data['email'], $data['birthdate'], $pictureId, $id]
 
         ]);
@@ -92,18 +102,21 @@ class UpdateContact
         header("Location : ../../homepage.php");
     }
 
-    public static function updateContactImage(array $file, array $newContactInfo, $contactId)
+    public function updateContactImage(array $file, array $newContactInfo, $contactId)
     {
 
-        $db = GetDb::getDb();
+        if($this->db == null){
+
+            $this->setDb();
+        }
 
 
 
-        $results = $db->getData("SELECT picture_id , picture from contacts where id = ?", [$contactId]);
+        $results = $this->db->getData("SELECT picture_id , picture from contacts where id = ?", [$contactId]);
         $data = $results->fetch();
         $imageId = $data['picture_id'];
 
-        $stmt = $db->getData("SELECT content, type FROM pictures WHERE id = ?", [$imageId]);
+        $stmt = $this->db->getData("SELECT content, type FROM pictures WHERE id = ?", [$imageId]);
         $image = $stmt->fetch();
         $pictureTmpName = $data['picture'];
         $imageType = $image['type'];
@@ -127,15 +140,28 @@ class UpdateContact
 
 
 
-        $db->setData("UPDATE  pictures SET content = ? , type = ?  WHERE  id = ? ", [
+        $this->db->setData("UPDATE  pictures SET content = ? , type = ?  WHERE  id = ? ", [
             [$content, $imageType, $imageId]
 
         ]);
 
-        UpdateContact::updateContactInfo($newContactInfo, $imageId, $pictureTmpName, $contactId);
+        $this->updateContactInfo($newContactInfo, $imageId, $pictureTmpName, $contactId);
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] == "GET") {
+
+    
+    $data = new UpdateContactTest();
+    $data->selectContact($_GET['contact_id']);
+    
+
+}
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    $data = new UpdateContactTest();
+    $newUpdateContact = $data->updateContactImage($_FILES, $_POST, $_GET['contact_id']);
+    
+}
 ?>
 
 <!DOCTYPE html>
@@ -259,38 +285,38 @@ class UpdateContact
         <form method="POST" id="contact-form" enctype="multipart/form-data">
             <div class="text-center">
                 <label class="image-upload" id="upload-image">
-                    <img src="<?= UpdateContact::$pictureId ? "/../viewImage.php?id=" . UpdateContact::$pictureId  : "./mock/person-placeholder.jpg"; ?>" class="contact-image" alt="Foto Contatto" id="previewImage" alt="Aggiungi Foto">
+                    <img src="<?= $data->pictureId ? "/../viewImage.php?id=" . $data->pictureId  : "./mock/person-placeholder.jpg"; ?>" class="contact-image" alt="Foto Contatto" id="previewImage" alt="Aggiungi Foto">
                     <input type="hidden" name="MAX_FILE_SIZE" id="">
                     <input type="file" id="photo" onchange="changePlaceholder(event)" name="picture">
                 </label>
             </div>
             <div class="mb-3">
                 <label class="form-label">Nome</label>
-                <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" value="<?= UpdateContact::$name ?>">
+                <input type="text" class="form-control" placeholder="Inserisci il nome" required name="name" value="<?= $data->name ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label">Cognome</label>
-                <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" value="<?= UpdateContact::$surname ?> ">
+                <input type="text" class="form-control" placeholder="Inserisci il cognome" required name="surname" value="<?= $data->surname ?> ">
             </div>
             <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email" value="<?= UpdateContact::$email ?>">
+                <input type="email" class="form-control" placeholder="Inserisci l'email" required name="email" value="<?= $data->email ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label">Organizzazione</label>
-                <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company" value="<?= UpdateContact::$company ?>">
+                <input type="text" class="form-control" placeholder="Inserisci l'organizzazione" name="company" value="<?= $data->company ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label">Ruolo</label>
-                <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role" value="<?= UpdateContact::$role ?>">
+                <input type="text" class="form-control" placeholder="Inserisci il ruolo" name="role" value="<?= $data->role ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label">Numero di cellulare</label>
-                <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number" value="<?= UpdateContact::$phoneNumber ?>">
+                <input type="tel" class="form-control" placeholder="Inserisci il numero" required name="phone_number" value="<?= $data->phoneNumber ?>">
             </div>
             <div class="mb-3">
                 <label class="form-label">Compleanno</label>
-                <input type="date" class="form-control" required name="birthdate" value="<?= UpdateContact::$birthdate ?>">
+                <input type="date" class="form-control" required name="birthdate" value="<?= $data->birthdate ?>">
             </div>
 
             <button type="submit" class="btn btn-primary w-100">Salva modifiche</button>
@@ -299,3 +325,4 @@ class UpdateContact
 </body>
 
 </html>
+

@@ -49,6 +49,7 @@ body {
 .container-custom {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 20px;
     width: 100%; 
     max-width: 900px; 
@@ -78,6 +79,15 @@ body {
     .form-container {
         width: 50%;
     }
+}
+@media (max-width: 768px) {
+    
+    li{
+display: flex !important;
+flex-wrap: wrap;
+
+    }
+
 }
 
 
@@ -122,3 +132,71 @@ body {
 .contacts-container::-webkit-scrollbar {
     display: none;
 }
+
+
+.contact-item {
+        cursor: pointer;
+        transition: background 0.3s;
+        padding: 10px 10px !important;
+        
+    }
+    .contact-item:hover {
+        background: #296bb5;
+    }
+
+    /* Overlay per i dettagli */
+    .contact-details-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+    }
+    .contact-details-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Scheda dei dettagli */
+    .contact-details-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 300px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        transform: translateY(-20px);
+        transition: transform 0.3s;
+    }
+    .contact-details-overlay.active .contact-details-card {
+        transform: translateY(0);
+    }
+
+    /* Pulsante di chiusura */
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 30px;
+        cursor: pointer;
+        color: white;
+    }
+    .close-btn:hover {
+        color: #ddd;
+    }
+
+    /* Immagine contatto */
+    #contact-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+    }

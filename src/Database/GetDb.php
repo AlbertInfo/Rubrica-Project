@@ -5,12 +5,13 @@ namespace Database;
 require_once __DIR__ . '/../../vendor/autoload.php'; //caricare l'autoloader;
 use Database\DatabaseContract;
 use Database\DatabaseFactory;
+use Database\MyPDO;
 use Exception;
 
 
-class GetDb
+class GetDb 
 {
-    private static $db = null;
+    public static $db = null;
 
     public static function getDb()
     {
